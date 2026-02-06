@@ -8,6 +8,8 @@ on:
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Taipei
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,6 +23,7 @@ jobs:
           pip install supabase
           pip install requests
           pip install python-dotenv
+          pip install pytz
       - name: Run scraper
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

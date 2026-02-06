@@ -1,5 +1,5 @@
 import requests
-import json
+import pytz
 from dotenv import load_dotenv
 import os
 from supabase import create_client
@@ -26,6 +26,7 @@ def test_insert():
           'quantity':999}
     response=supabase.table('station_info').insert(test).execute()
     print('success' if response.data else 'failed')
+
 # fetch data from api and return json data
 def ubike_fetch():
     ubike_url="https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
@@ -37,6 +38,7 @@ def ubike_fetch():
         print(f'error:\n{e}')
         data=None
     return data
+
 # insert station info data into database
 def station_info_insert():
     data=ubike_fetch()
@@ -58,8 +60,10 @@ def station_info_insert():
             stations.append(station)
     response=supabase.table('station_info').insert(stations).execute()
     print('successfully insert data' if response.data else 'failed to insert data')
+
 # insert bike info data into database
 def bike_info_insert():
+    tw_tz=pytz.timezone('Asia/Taipei')
     data=ubike_fetch()
     if not data:
         print('no data to insert')
@@ -67,12 +71,14 @@ def bike_info_insert():
     bikes=[]
     for item in data:
         if item['sarea']=='大安區':
+            mday_raw=datetime.strptime(item['mday'], '%Y-%m-%d %H:%M:%S')
+            mday_tw=tw_tz.localize(mday_raw).isoformat()
             bike={
                 'sno':item['sno'],
-                'mday':item['mday'],
+                'mday':mday_tw,
                 'available_return_bikes':item['available_return_bikes'],
                 'act':item['act'],
-                'fetch_time':datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                'fetch_time':datetime.now(pytz).isoformat()
             }
             bikes.append(bike)
     response=supabase.table('bike_info').insert(bikes).execute()
