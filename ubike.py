@@ -78,7 +78,7 @@ def bike_info_insert():
                 'mday':mday_tw,
                 'available_return_bikes':item['available_return_bikes'],
                 'act':item['act'],
-                'fetch_time':datetime.now(pytz).isoformat()
+                'fetch_time':datetime.now(tw_tz).isoformat()
             }
             bikes.append(bike)
     response=supabase.table('bike_info').insert(bikes).execute()
